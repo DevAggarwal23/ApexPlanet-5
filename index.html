@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillSphere - Dev Portfolio</title>
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --text-color: #111;
+      --card-bg: rgba(255, 255, 255, 0.2);
+      --glass: blur(10px);
+    }
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f5f5f5;
+      --card-bg: rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: 0.4s;
+    }
+
+    header {
+      text-align: center;
+      padding: 4rem 1rem 2rem;
+      background: linear-gradient(to right, #3a8dde, #6cd4ff);
+      color: white;
+      position: relative;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    section {
+      margin: 2rem auto;
+      padding: 2rem;
+      width: 90%;
+      max-width: 900px;
+      background: var(--card-bg);
+      backdrop-filter: var(--glass);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    #projectGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #ffffff10;
+      padding: 1rem;
+      border-radius: 15px;
+      text-align: center;
+      color: inherit;
+      backdrop-filter: blur(8px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      background: #333;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="toggle-btn" onclick="toggleTheme()">Toggle 🌙</button>
+    <h1>Hi, I'm Dev Aggarwal!</h1>
+    <p><span id="typewriter"></span></p>
+  </header>
+
+  <section>
+    <h2>📝 To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Add a task...">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+  </section>
+
+  <section>
+    <h2>🧩 Project Showcase</h2>
+    <select id="sort" onchange="sortProjects()">
+      <option value="rating">Sort by Rating</option>
+      <option value="name">Sort by Name</option>
+    </select>
+    <div id="projectGrid"></div>
+  </section>
+
+  <section>
+    <h2>📬 Contact Me</h2>
+    <form>
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea placeholder="Your Message" rows="4"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <footer>
+    &copy; 2025 SkillSphere | Built with 💻 HTML, CSS, JS
+  </footer>
+
+  <script>
+    // Typewriter Effect
+    const words = ["Web Developer", "UI/UX Designer", "Frontend Enthusiast"];
+    let i = 0, j = 0, isDeleting = false, current = "";
+    function type() {
+      document.getElementById("typewriter").textContent = current;
+      if (!isDeleting && j <= words[i].length) {
+        current = words[i].substring(0, ++j);
+      } else if (isDeleting && j >= 0) {
+        current = words[i].substring(0, --j);
+      }
+      if (j === words[i].length) isDeleting = true;
+      if (j === 0 && isDeleting) {
+        isDeleting = false;
+        i = (i + 1) % words.length;
+      }
+      setTimeout(type, isDeleting ? 60 : 120);
+    }
+    type();
+
+    // Theme Toggle
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
+
+    // To-Do App
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const task = input.value.trim();
+      if (!task) return;
+      let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      tasks.push(task);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      input.value = "";
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = task;
+        list.appendChild(li);
+      });
+    }
+
+    // Project Showcase
+    const projects = [
+      { name: "Portfolio Website", rating: 4.9 },
+      { name: "To-Do App", rating: 4.5 },
+      { name: "E-Commerce Page", rating: 4.8 }
+    ];
+
+    function displayProjects(arr) {
+      const grid = document.getElementById("projectGrid");
+      grid.innerHTML = "";
+      arr.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `<h3>${p.name}</h3><p>⭐ ${p.rating}</p>`;
+        grid.appendChild(div);
+      });
+    }
+
+    function sortProjects() {
+      const type = document.getElementById("sort").value;
+      let sorted = [...projects];
+      if (type === "rating") {
+        sorted.sort((a, b) => b.rating - a.rating);
+      } else {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      }
+      displayProjects(sorted);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTasks();
+      displayProjects(projects);
+    });
+  </script>
+</body>
+</html>
